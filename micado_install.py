@@ -8,7 +8,7 @@ import requests
 def create_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
-        os.chown(folder, 1000, 1000)
+        os.chown(folder, os.getuid(), os.getgid())
         print("Directory " , folder ,  " Created ")
     else:    
         print("Directory " , folder ,  " already exists") 
@@ -19,7 +19,7 @@ def create_folder(folder):
 @click.option("--count", default=1, help="Number of greetings.")
 @click.option("--name", prompt="Your name", help="The person to greet.")
 def main(count, name):
-    """Simple program that greets NAME for a total of COUNT times."""
+    """MICADO installer program"""
     for _ in range(count):
         click.echo(f"Hello, {name}!")
 
