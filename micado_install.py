@@ -14,9 +14,9 @@ def create_folder(folder):
     if not os.path.exists(folder):
         os.makedirs(folder)
         os.chown(folder, os.getuid(), os.getgid())
-        click.echo("Directory " , folder ,  " Created ")
+        print("Directory " , folder ,  " Created ")
     else:    
-        click.echo("Directory " , folder ,  " already exists") 
+        print("Directory " , folder ,  " already exists") 
 
 def create_env_file():
     file = Path('.env')
@@ -40,14 +40,22 @@ def show_logs(docker, service):
         services=[str(service)]
     )
 
-def replace_in_ini_file(filename, group, key, value):
-    #need to define this function better, configparser seems to have trouble with the .ini of git
-    #config = configparser.ConfigParser()
-    #config.read(filename)
-    #print(config[str(group)][str(key)])
-    #config[str(group)][str(key)] = value
-    #with open(filename, 'w') as configfile:
-    #    config.write(configfile)
+def replace_in_git_ini_file(filename, group, key, value):
+    with open(filename, 'r') as f:
+        next(f)
+        next(f)
+        config = configparser.ConfigParser()
+        config.optionxform = str
+        config_string = f.read()
+        config.read_string(config_string)
+        config[str(group)][str(key)] = value
+    with open(filename, 'w') as configfile:
+      config.write(configfile)
+    lines_to_add = "APP_NAME = Gitea: Git with a cup of tea\nRUN_MODE = dev\n\n"
+    with open(filename, 'r+') as file:
+      content = file.read()
+      file.seek(0)
+      file.write(lines_to_add + content)
 
 
 
@@ -72,9 +80,12 @@ def replace_in_ini_file(filename, group, key, value):
 @click.option("--keycloak_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin")
 @click.option("--keycloak_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
 @click.option("--gitea_db_schema", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--gitea_username", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin")
+@click.option("--gitea_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--gitea_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="mail@csi.it")
 def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_password, weblate_admin_password, keycloak_hostname, tz, micado_git_url,
  postgres_user, postgres_db, postgres_port,micado_db_user, micado_db_schema, keycloak_db_user, keycloak_db_pwd ,keycloak_db_schema, keycloak_user, keycloak_password,
- gitea_db_schema ):
+ gitea_db_schema, gitea_username, gitea_password,gitea_email ):
     """MICADO installer program"""
 
     #creating file and adding env variables
@@ -99,11 +110,14 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     f.write('KEYCLOAK_USER=' + keycloak_user + '\n')
     f.write('KEYCLOAK_PASSWORD=' + keycloak_password + '\n')
     f.write('GITEA_DB_SCHEMA=' + gitea_db_schema + '\n')
+    f.write('GITEA_USERNAME=' + gitea_username + '\n')
+    f.write('GITEA_PASSWORD=' + gitea_password + '\n')
+    f.write('GITEA_EMAIL=' + gitea_email + '\n')
     f.close
-    
+
     #creating necessary folder
     click.echo("\nCreating folders\n")
-    folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images"]
+    folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images", 'git_data']
     [create_folder(i) for i in folder_list]
 
     #setting up docker client with env variables
@@ -146,25 +160,46 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(25)
 
     #starting balancer
-    click.echo.("\nStarting Balancer container deployment\n")
+    click.echo("\nStarting Balancer container deployment\n")
     start_service('balancer', 'balancer')
     time.sleep(15)
 
-    #todo: make the correct substitution in the git config files
     #starting and setting up git and weblate
     click.echo("\nStarting WEBLATE containers deployment\n")
     start_service(docker, 'cache', 'git cache')
     time.sleep(15)
-    start_service(docker. 'git', 'git')
+    start_service(docker,'git', 'git')
     time.sleep(15)
     stop_service(docker, 'git')
     click.echo("\nAdding SCHEMA to git_data/gitea/conf/app.ini\n")
-    replace_in_ini_file('git_data/gitea/conf/app.ini','database', 'SCHEMA', gitea_db_schema)
-    sleep 5
+    replace_in_git_ini_file('git_data/gitea/conf/app.ini','database', 'SCHEMA', gitea_db_schema)
+    time.sleep(5)
+    start_service(docker, 'git', 'git')
+    time.sleep(15)
+    gitea_migrate = 'docker-compose exec git gitea migrate'
+    process=subprocess.Popen(gitea_migrate.split(" "), stdout=subprocess.PIPE)
+    gitea_create_user='docker-compose exec git gitea admin create-user --username ' + gitea_username + ' --password ' + gitea_password + ' --email ' + gitea_email + ' --admin'
+    process=subprocess.Popen(gitea_create_user.split(" "), stdout=subprocess.PIPE)
+    stop_service(docker, 'git')
+    time.sleep(5)
+    click.echo("\nSetting INSTALL_LOCK=true to git_data/gitea/conf/app.ini\n")
+    replace_in_git_ini_file('git_data/gitea/conf/app.ini','security', 'INSTALL_LOCK', 'true')
+    start_service(docker, 'git', 'git')
+    time.sleep(15)
+    #todo: add create gitea repo
+    #todo: add git hook on push
 
+    #starting weblate
+    start_service(docker, 'weblate', weblate)
+    time.sleep(25)
+    show_logs(docker, 'weblate')
+    click.echo("\nStarted WEBLATE\n")
 
+    if click.confirm('Weblate is running, now you need to configure GIT before installation can continue, press y after you configured it'):
+        click.echo("Continuing installation")
+    
     #starting backend
-    click.echo"\nStarting backend container deployment\n")
+    click.echo("\nStarting backend container deployment\n")
     start_service(docker,'backend', 'backend')
     time.sleep(15)
     show_logs(docker, 'backend')
@@ -210,6 +245,8 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(15)
     show_logs(docker, 'rocketchat')
     click.echo("\nStarted Keycloak")
+
+    #todo:configure rocketchat
 
     #starting the apps
     click.echo("\nStarting MICADO applications' containers deployment")
