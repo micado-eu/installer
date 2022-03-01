@@ -36,9 +36,9 @@ def stop_service(docker, service):
     )
 
 def show_logs(docker, service):
-    docker.compose.logs(
+    click.echo(docker.compose.logs(
         services=[str(service)]
-    )
+    ))
 
 def replace_in_git_ini_file(filename, group, key, value):
     with open(filename, 'r') as f:
