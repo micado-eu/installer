@@ -72,7 +72,7 @@ def replace_in_git_ini_file(filename, group, key, value):
 @click.option("--postgres_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micado")
 @click.option("--postgres_db", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micado")
 @click.option("--postgres_port", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="5432")
-@click.option("--micado_db_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micado")
+@click.option("--micado_db_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micadoapp")
 @click.option("--micado_db_schema", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micadoapp")
 @click.option("--keycloak_db_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="keycloak")
 @click.option("--keycloak_db_pwd", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="keycloak")
@@ -83,9 +83,32 @@ def replace_in_git_ini_file(filename, group, key, value):
 @click.option("--gitea_username", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin")
 @click.option("--gitea_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
 @click.option("--gitea_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="mail@csi.it")
+@click.option("--migrants_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="migrants.micadoproject.eu")
+@click.option("--pa_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="pa.micadoproject.eu")
+@click.option("--ngo_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="ngo.micadoproject.eu")
+@click.option("--db_admin_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin.micadoproject.eu")
+@click.option("--analytic_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="monitoring.micadoproject.eu")
+@click.option("--translation_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="translate.micadoproject.eu")
+@click.option("--git_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="git.micadoproject.eu")
+@click.option("--portainer_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="portainer.micadoproject.eu")
+@click.option("--rocketchat_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin2.micadoproject.eu")
+@click.option("--rasa_hostname", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="multichatbot")
+@click.option("--pgadmin_default_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micado@csi.it")
+@click.option("--mongo_replica_set_name", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rs0")
+@click.option("--weblate_debug", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="1")
+@click.option("--weblate_loglevel", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="debug")
+@click.option("--weblate_site_title", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="weblate.micadoproject.eu")
+@click.option("--weblate_admin_name", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micadotransl")
+@click.option("--weblate_admin_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
+@click.option("--weblate_server_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
+@click.option("--weblate_default_from_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
+@click.option("--weblate_allowed_hosts", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="*")
+@click.option("--weblate_registration_open", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="1")
 def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_password, weblate_admin_password, keycloak_hostname, tz, micado_git_url,
  postgres_user, postgres_db, postgres_port,micado_db_user, micado_db_schema, keycloak_db_user, keycloak_db_pwd ,keycloak_db_schema, keycloak_user, keycloak_password,
- gitea_db_schema, gitea_username, gitea_password,gitea_email ):
+ gitea_db_schema, gitea_username, gitea_password,gitea_email, migrants_hostname, pa_hostname, ngo_hostname, db_admin_hostname, analytic_hostname, translation_hostname,
+ git_hostname, portainer_hostname, rocketchat_hostname, rasa_hostname, weblate_debug, weblate_loglevel, weblate_site_title, weblate_admin_name, weblate_admin_email,
+ weblate_server_email, weblate_default_from_email, weblate_allowed_hosts, weblate_registration_open ):
     """MICADO installer program"""
 
     #creating file and adding env variables
@@ -113,6 +136,28 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     f.write('GITEA_USERNAME=' + gitea_username + '\n')
     f.write('GITEA_PASSWORD=' + gitea_password + '\n')
     f.write('GITEA_EMAIL=' + gitea_email + '\n')
+    f.write('MIGRANTS_HOSTNAME=' + migrants_hostname + '\n')
+    f.write('PA_HOSTNAME=' + pa_hostname + '\n')
+    f.write('NGO_HOSTNAME=' + ngo_hostname + '\n')
+    f.write('PGADMIN_DEFAULT_EMAIL=' + pgadmin_default_email + '\n')
+    f.write('MONGO_REPLICA_SET_NAME=' + mongo_replica_set_name + '\n')
+    f.write('DB_ADMIN_HOSTNAME=' + db_admin_hostname + '\n')
+    f.write('ANALYTIC_HOSTNAME=' + analytic_hostname + '\n')
+    f.write('TRANSLATION_HOSTNAME=' + translation_hostname + '\n')
+    f.write('GIT_HOSTNAME=' + git_hostname + '\n')
+    f.write('PORTAINER_HOSTNAME=' + portainer_hostname + '\n')
+    f.write('ROCKETCHAT_HOSTNAME=' + rocketchat_hostname + '\n')
+    f.write('RASA_HOSTNAME=' +multichatbot + '\n')
+    f.write('WEBLATE_DEBUG=' + weblate_debug + '\n')
+    f.write('WEBLATE_LOGLEVEL=' + weblate_loglevel + '\n')
+    f.write('WEBLATE_SITE_TITLE=' + weblate_site_title + '\n')
+    f.write('WEBLATE_ADMIN_NAME=' + weblate_admin_name + '\n')
+    f.write('WEBLATE_ADMIN_EMAIL=' + weblate_admin_email + '\n')
+    f.write('WEBLATE_SERVER_EMAIL=' + weblate_server_email + '\n')
+    f.write('WEBLATE_DEFAULT_FROM_EMAIL=' + weblate_default_from_email + '\n')
+    f.write('WEBLATE_ALLOWED_HOSTS=' + weblate_allowed_hosts + '\n')
+    f.write)'WEBLATE_REGISTRATION_OPEN=' + weblate_registration_open + '\n')
+
     f.close
 
     #creating necessary folder
@@ -129,7 +174,7 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     load_dotenv()
 
     #starting database
-    click.echo("nStarting PostgreSQL container deployment\n")
+    click.echo("\nStarting PostgreSQL container deployment\n")
     start_service(docker, 'micado_db', 'micado database')
 
     #checking if db is up
