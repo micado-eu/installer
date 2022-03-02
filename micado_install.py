@@ -7,6 +7,8 @@ from dotenv import load_dotenv
 from pathlib import Path
 import time
 import configparser
+from hashlib import sha256
+
 
 
 
@@ -18,8 +20,8 @@ def create_folder(folder):
     else:    
         print("Directory " , folder ,  " already exists") 
 
-def create_env_file():
-    file = Path('.env')
+def create_file(filename):
+    file = Path(filename)
     file.touch(exist_ok=True)
 
 def start_service(docker, service, service_name):
@@ -103,72 +105,135 @@ def replace_in_git_ini_file(filename, group, key, value):
 @click.option("--weblate_server_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
 @click.option("--weblate_default_from_email", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
 @click.option("--weblate_allowed_hosts", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="*")
-@click.option("--weblate_registration_open", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="1")
+@click.option("--weblate_email_host", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="smtp.micadoproject.eu")
+@click.option("--weblate_email_host_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="development@micadoproject.eu")
+@click.option("--weblate_email_host_ssl", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="false")
+@click.option("--gitea_db_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="gitea")
+@click.option("--micado_translations_dir", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="/tmp/translations")
+@click.option("--micado_translations_dir", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="/tmp/translations")
+@click.option("--micado_env", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="prod")
+@click.option("--rocketchat_admin", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="admin")
+@click.option("--rocketchat_admin_mail", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="test@test.it")
+@click.option("--algorithm", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="aes-192-cbc")
+@click.option("--salt", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="salt")
+@click.option("--key_length", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="24")
+@click.option("--buffer_0", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="16")
+@click.option("--buffer_1", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="0")
+@click.option("--countly_admin", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micadoadm")
+@click.option("--micado_weblate_project", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micado")
+@click.option("--rasa_schema", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa")
+@click.option("--rasa_db_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa")
+@click.option("--bot_name", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa_bot")
+@click.option("--title_limit", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="30")
+@click.option("--weblate_postgres_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--weblate_email_host_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--gitea_db_pwd", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--rocketchat_admin_pwd", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="Pa55w0rd")
+@click.option("--rocketchat_user", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa_bot")
+@click.option("--rocketchat_password", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="micadobot")
+@click.option("--respond_to_livechat", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="true")
+@click.option("--weblate_registration_open", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="true")
+@click.option("--rasa_bot", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa_bot")
+
 def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_password, weblate_admin_password, keycloak_hostname, tz, micado_git_url,
  postgres_user, postgres_db, postgres_port,micado_db_user, micado_db_schema, keycloak_db_user, keycloak_db_pwd ,keycloak_db_schema, keycloak_user, keycloak_password,
  gitea_db_schema, gitea_username, gitea_password,gitea_email, migrants_hostname, pa_hostname, ngo_hostname, db_admin_hostname, analytic_hostname, translation_hostname,
  git_hostname, portainer_hostname, rocketchat_hostname, rasa_hostname, weblate_debug, weblate_loglevel, weblate_site_title, weblate_admin_name, weblate_admin_email,
- weblate_server_email, weblate_default_from_email, weblate_allowed_hosts, weblate_registration_open ):
+ weblate_server_email, weblate_default_from_email, weblate_allowed_hosts, weblate_registration_open,weblate_email_host ,weblate_email_host_user, weblate_email_host_ssl,
+ gitea_db_user, micado_translations_dir, micado_env, rocketchat_admin,rocketchat_admin_mail,algorithm,salt,key_length,buffer_0,buffer_1,
+ countly_admin, micado_weblate_project,rasa_bot, rasa_db_user, rasa_schema, bot_name, title_limit, weblate_postgres_password, weblate_email_host_password,
+ gitea_db_pwd, rocketchat_admin_pwd, rocketchat_user, rocketchat_password, respond_to_livechat,pgadmin_default_email , mongo_replica_set_name):
     """MICADO installer program"""
 
     #creating file and adding env variables
-    create_env_file()
-    f = open(".env", "a")
-    f.write(f"MICADO_DB_PWD={micado_db_pwd}\n")
-    f.write('POSTGRES_PASSWORD=' + postgres_password + '\n')
-    f.write('KC_ADMIN_PWD=' + kc_admin_pwd + '\n')
-    f.write('PGADMIN_DEFAULT_PASSWORD=' + pgadmin_deafult_password + '\n')
-    f.write('WEBLATE_ADMIN_PASSWORD=' + weblate_admin_password + '\n')
-    f.write('KEYCLOAK_HOSTNAME=' + keycloak_hostname + '\n')
-    f.write('TZ=' + tz + '\n')
-    f.write('MICADO_GIT_URL=' + micado_git_url + '\n')
-    f.write('POSTGRES_USER=' + postgres_user + '\n')
-    f.write('POSTGRES_DB=' + postgres_db + '\n')
-    f.write('POSTGRES_PORT=' + postgres_port + '\n')
-    f.write('MICADO_DB_USER=' + micado_db_user + '\n')
-    f.write('MICADO_DB_SCHEMA=' + micado_db_schema + '\n')
-    f.write('KEYCLOAK_DB_USER=' + keycloak_db_user + '\n')
-    f.write('KEYCLOAK_DB_PWD=' + keycloak_db_pwd + '\n')
-    f.write('KEYCLOAK_DB_SCHEMA=' + keycloak_db_schema + '\n')
-    f.write('KEYCLOAK_USER=' + keycloak_user + '\n')
-    f.write('KEYCLOAK_PASSWORD=' + keycloak_password + '\n')
-    f.write('GITEA_DB_SCHEMA=' + gitea_db_schema + '\n')
-    f.write('GITEA_USERNAME=' + gitea_username + '\n')
-    f.write('GITEA_PASSWORD=' + gitea_password + '\n')
-    f.write('GITEA_EMAIL=' + gitea_email + '\n')
-    f.write('MIGRANTS_HOSTNAME=' + migrants_hostname + '\n')
-    f.write('PA_HOSTNAME=' + pa_hostname + '\n')
-    f.write('NGO_HOSTNAME=' + ngo_hostname + '\n')
-    f.write('PGADMIN_DEFAULT_EMAIL=' + pgadmin_default_email + '\n')
-    f.write('MONGO_REPLICA_SET_NAME=' + mongo_replica_set_name + '\n')
-    f.write('DB_ADMIN_HOSTNAME=' + db_admin_hostname + '\n')
-    f.write('ANALYTIC_HOSTNAME=' + analytic_hostname + '\n')
-    f.write('TRANSLATION_HOSTNAME=' + translation_hostname + '\n')
-    f.write('GIT_HOSTNAME=' + git_hostname + '\n')
-    f.write('PORTAINER_HOSTNAME=' + portainer_hostname + '\n')
-    f.write('ROCKETCHAT_HOSTNAME=' + rocketchat_hostname + '\n')
-    f.write('RASA_HOSTNAME=' +multichatbot + '\n')
-    f.write('WEBLATE_DEBUG=' + weblate_debug + '\n')
-    f.write('WEBLATE_LOGLEVEL=' + weblate_loglevel + '\n')
-    f.write('WEBLATE_SITE_TITLE=' + weblate_site_title + '\n')
-    f.write('WEBLATE_ADMIN_NAME=' + weblate_admin_name + '\n')
-    f.write('WEBLATE_ADMIN_EMAIL=' + weblate_admin_email + '\n')
-    f.write('WEBLATE_SERVER_EMAIL=' + weblate_server_email + '\n')
-    f.write('WEBLATE_DEFAULT_FROM_EMAIL=' + weblate_default_from_email + '\n')
-    f.write('WEBLATE_ALLOWED_HOSTS=' + weblate_allowed_hosts + '\n')
-    f.write)'WEBLATE_REGISTRATION_OPEN=' + weblate_registration_open + '\n')
-
-    f.close
+    create_file('./.env')
+    with open('./.env', 'a') as f:
+        f.write(f"MICADO_DB_PWD={micado_db_pwd}\n")
+        f.write('POSTGRES_PASSWORD=' + postgres_password + '\n')
+        f.write('KC_ADMIN_PWD=' + kc_admin_pwd + '\n')
+        f.write('PGADMIN_DEFAULT_PASSWORD=' + pgadmin_deafult_password + '\n')
+        f.write('WEBLATE_ADMIN_PASSWORD=' + weblate_admin_password + '\n')
+        f.write('KEYCLOAK_HOSTNAME=' + keycloak_hostname + '\n')
+        f.write('TZ=' + tz + '\n')
+        f.write('MICADO_GIT_URL=' + micado_git_url + '\n')
+        f.write('POSTGRES_USER=' + postgres_user + '\n')
+        f.write('POSTGRES_DB=' + postgres_db + '\n')
+        f.write('POSTGRES_PORT=' + postgres_port + '\n')
+        f.write('MICADO_DB_USER=' + micado_db_user + '\n')
+        f.write('MICADO_DB_SCHEMA=' + micado_db_schema + '\n')
+        f.write('KEYCLOAK_DB_USER=' + keycloak_db_user + '\n')
+        f.write('KEYCLOAK_DB_PWD=' + keycloak_db_pwd + '\n')
+        f.write('KEYCLOAK_DB_SCHEMA=' + keycloak_db_schema + '\n')
+        f.write('KEYCLOAK_USER=' + keycloak_user + '\n')
+        f.write('KEYCLOAK_PASSWORD=' + keycloak_password + '\n')
+        f.write('GITEA_DB_SCHEMA=' + gitea_db_schema + '\n')
+        f.write('GITEA_USERNAME=' + gitea_username + '\n')
+        f.write('GITEA_PASSWORD=' + gitea_password + '\n')
+        f.write('GITEA_EMAIL=' + gitea_email + '\n')
+        f.write('MIGRANTS_HOSTNAME=' + migrants_hostname + '\n')
+        f.write('PA_HOSTNAME=' + pa_hostname + '\n')
+        f.write('NGO_HOSTNAME=' + ngo_hostname + '\n')
+        f.write('PGADMIN_DEFAULT_EMAIL=' + pgadmin_default_email + '\n')
+        f.write('MONGO_REPLICA_SET_NAME=' + mongo_replica_set_name + '\n')
+        f.write('DB_ADMIN_HOSTNAME=' + db_admin_hostname + '\n')
+        f.write('ANALYTIC_HOSTNAME=' + analytic_hostname + '\n')
+        f.write('TRANSLATION_HOSTNAME=' + translation_hostname + '\n')
+        f.write('GIT_HOSTNAME=' + git_hostname + '\n')
+        f.write('PORTAINER_HOSTNAME=' + portainer_hostname + '\n')
+        f.write('ROCKETCHAT_HOSTNAME=' + rocketchat_hostname + '\n')
+        f.write('RASA_HOSTNAME=' +rasa_hostname + '\n')
+        f.write('WEBLATE_DEBUG=' + weblate_debug + '\n')
+        f.write('WEBLATE_LOGLEVEL=' + weblate_loglevel + '\n')
+        f.write('WEBLATE_SITE_TITLE=' + weblate_site_title + '\n')
+        f.write('WEBLATE_ADMIN_NAME=' + weblate_admin_name + '\n')
+        f.write('WEBLATE_ADMIN_EMAIL=' + weblate_admin_email + '\n')
+        f.write('WEBLATE_SERVER_EMAIL=' + weblate_server_email + '\n')
+        f.write('WEBLATE_DEFAULT_FROM_EMAIL=' + weblate_default_from_email + '\n')
+        f.write('WEBLATE_ALLOWED_HOSTS=' + weblate_allowed_hosts + '\n')
+        f.write('WEBLATE_REGISTRATION_OPEN=' + weblate_registration_open + '\n')
+        f.write('WEBLATE_EMAIL_HOST=' + weblate_email_host + '\n')
+        f.write('WEBLATE_EMAIL_HOST_USER=' + weblate_email_host_user + '\n')
+        f.write('WEBLATE_EMAIL_HOST_SSL=' + weblate_email_host_ssl + '\n')
+        f.write('GITEA_DB_USER=' + gitea_db_user + '\n')
+        f.write('MICADO_TRANSLATIONS_DIR=' + micado_translations_dir + '\n')
+        f.write('MICADO_ENV=' + micado_env + '\n')
+        f.write('ROCKETCHAT_ADMIN=' + rocketchat_admin + '\n')
+        f.write('ROCKETCHAT_ADMIN_MAIL=' + rocketchat_admin_mail + '\n')
+        f.write('ALGORITHM=' + algorithm + '\n')
+        f.write('SALT=' + salt + '\n')
+        f.write('KEY_LENGTH=' + key_length + '\n')
+        f.write('BUFFER_0=' + buffer_0 + '\n')
+        f.write('BUFFER_1=' + buffer_1 + '\n')
+        f.write('COUNTLY_ADMIN=' + countly_admin + '\n')
+        f.write('MICADO_WEBLATE_PROJECT=' + micado_weblate_project + '\n')
+        f.write('RASA_SCHEMA=' + rasa_schema + '\n')
+        f.write('RASA_DB_USER=' + rasa_db_user + '\n')
+        f.write('BOT_NAME=' + bot_name + '\n')
+        f.write('TITLE_LIMIT=' + title_limit + '\n')
+        f.write('WEBLATE_POSTGRES_PASSWORD=' + weblate_postgres_password + '\n')
+        f.write('WEBLATE_EMAIL_HOST_PASSWORD=' + weblate_email_host_password + '\n')
+        f.write('GITEA_DB_PWD=' + gitea_db_pwd + '\n')
+        f.write('ROCKETCHAT_ADMIN_PWD=' + rocketchat_admin_pwd + '\n')
+        f.write('ROCKETCHAT_USER=' + rocketchat_user + '\n')
+        f.write('ROCKETCHAT_PASSWORD=' + rocketchat_password + '\n')
+        f.write('RESPOND_TO_LIVECHAT=' + respond_to_livechat + '\n')
+    click.echo("\nWriting env file\n")
+    time.sleep(5)
+    click.echo("\nThese are the contents of the .env file\n")
+    a_file = open(".env")
+    file_contents = a_file.read()
+    click.echo(file_contents)
 
     #creating necessary folder
     click.echo("\nCreating folders\n")
     folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images", 'git_data']
     [create_folder(i) for i in folder_list]
+    create_file('traefik/traefik-acme/acme.json')
 
     #setting up docker client with env variables
     click.echo("\nSetting environment\n")
     docker = DockerClient(
-        compose_env_file='./.env',
+        #compose_env_file='prod.env',
     )
     #setting env variables
     load_dotenv()
@@ -210,6 +275,7 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(15)
 
     #starting and setting up git and weblate
+    #needs testing
     click.echo("\nStarting WEBLATE containers deployment\n")
     start_service(docker, 'cache', 'git cache')
     time.sleep(15)
@@ -221,9 +287,11 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(5)
     start_service(docker, 'git', 'git')
     time.sleep(15)
-    gitea_migrate = 'docker-compose exec git gitea migrate'
+    #should be done with python_on_whales when docker-compose exec is implemented
+    gitea_migrate = 'docker-compose -f docker-compose-prod.yaml exec git gitea migrate'
     process=subprocess.Popen(gitea_migrate.split(" "), stdout=subprocess.PIPE)
-    gitea_create_user='docker-compose exec git gitea admin create-user --username ' + gitea_username + ' --password ' + gitea_password + ' --email ' + gitea_email + ' --admin'
+    #should be done with python_on_whales when docker-compose exec is implemented
+    gitea_create_user='docker-compose -f docker-compose-prod.yaml exec git gitea admin create-user --username ' + gitea_username + ' --password ' + gitea_password + ' --email ' + gitea_email + ' --admin'
     process=subprocess.Popen(gitea_create_user.split(" "), stdout=subprocess.PIPE)
     stop_service(docker, 'git')
     time.sleep(5)
@@ -231,8 +299,12 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     replace_in_git_ini_file('git_data/gitea/conf/app.ini','security', 'INSTALL_LOCK', 'true')
     start_service(docker, 'git', 'git')
     time.sleep(15)
-    #todo: add create gitea repo
-    #todo: add git hook on push
+    #should be done with python_on_whales when docker-compose exec is implemented
+    create_repo = 'docker-compose -f docker-compose-prod.yaml exec git curl -X POST "http://' + gitea_username+ ':' +gitea_password+'@git:3000/api/v1/user/repos" -H "Content-Type: application/json" -d "{\"name\": \"'+ gitea_repo + '\", \"auto_init\": true }"'
+    process=subprocess.Popen(create_repo.split(" "), stdout=subprocess.PIPE)
+    #should be done with python_on_whales when docker-compose exec is implemented
+    create_hook = 'docker-compose -f docker-compose-prod.yaml exec git curl -X POST "http://' + gitea_username+ ':' +gitea_password+'@git:3000/api/v1/repos/$GITEA_USERNAME/$GITEA_REPO/hooks" -H "Content-Type: application/json" -d "{"active": true,"branch_filter": "*","config": {"content_type": "json","url": "http://weblate:8080/hooks/gitea/","http_method": "post"},"events": ["push"],"type": "gitea"}"'
+    process=subprocess.Popen(create_hook.split(" "), stdout=subprocess.PIPE)
 
     #starting weblate
     start_service(docker, 'weblate', weblate)
@@ -272,6 +344,7 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(15)
     show_logs(docker, 'keycloak')
     click.echo("\nStarted Keycloak")
+    #todo:setup keycloak realms
 
     #starting rasa chatbot
     click.echo("\nStarting Chatbot containers deployment\n")
@@ -291,7 +364,40 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     show_logs(docker, 'rocketchat')
     click.echo("\nStarted Keycloak")
 
-    #todo:configure rocketchat
+    #needs testing
+    bot_name=rasa_bot
+    rktauth = requests.post('https://'+ rocketchat_hostname + '/api/v1/login', data = {'username': rocketchat_admin, 'password': rocketchat_admin_pwd}, headers = {"Content-Type": "application/json"})
+    click.echo(rktauth.content)
+    rkauth_json=rktauth.json()
+    rktuid=rkauth_json['data']['userId']
+    click.echo(rktuid)
+    rkttk=rkauth_json['data']['authToken']
+    click.echo(rkttk)
+    click.echo("Creating user")
+    rkdos = requests.post('https://'+ rocketchat_hostname + '/api/v1/login', data = {'name': bot_name,'email': 'luca.gioppo@csi.it','password': rasa_bot_password,'username': bot_name,'requirePasswordChange': 'false','sendWelcomeEmail': 'false', 'roles': '[bot]'}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid})
+    click.echo(rkdos.content)
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/livechat/users/agent', data={'username': bot_name}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid})
+    click.echo(rktres.content)
+    rktres_json=rktres.json()
+    agent_user_id=rktres_json['user']['_id']
+    click.echo(agent_user_id)
+
+    sha256password=sha256(rocketchat_admin_pwd.encode('utf-8')).hexdigest()
+    click.echo(sha256password)
+    ##CONFIGURE LIVECHAT and SETTINGS
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/settings/Livechat_enabled', data={'value': 'true'}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid, 'x-2fa-method':'password','x-2fa-code': sha256password})
+    click.echo(rktres.content)
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/settings/Livechat_registration_form', data={'value': 'false'}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid, 'x-2fa-method':'password','x-2fa-code': sha256password})
+    click.echo(rktres.content)
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/settings/Livechat_title', data={'value': 'Micado bot'}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid, 'x-2fa-method':'password','x-2fa-code': sha256password})
+    click.echo(rktres.content)
+    ##CREATE DEPARTMENT
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/livechat/department', data={'department':{'enabled': 'true','showOnRegistration': 'true','showOnOfflineForm':'false','email': 'email@email.com','name': 'micado','description': 'default department'},'agents': [{'agentId': agent_user_id,'username': bot_name,'count': 0,'order': 0}]}, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid})
+    click.echo(rktres.content)
+    ##CREATE WEBHOOK
+    rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/integrations.create', data={ 'type': 'webhook-outgoing', 'name': 'Rasa', 'event': 'sendMessage', 'enabled': 'true', 'username': bot_name, 'urls': ['http://chatbot:5005/webhooks/rocketchat/webhook'], 'scriptEnabled': 'true', 'channel':'all_direct_messages' }, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid})
+    click.echo(rktres.content)
+
 
     #starting the apps
     click.echo("\nStarting MICADO applications' containers deployment")
