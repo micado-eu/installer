@@ -224,7 +224,7 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     file_contents = a_file.read()
     click.echo(file_contents)
 
-    #creating necessary folder
+    #creating necessary folders
     click.echo("\nCreating folders\n")
     folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images", 'git_data']
     [create_folder(i) for i in folder_list]
@@ -344,7 +344,21 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     time.sleep(15)
     show_logs(docker, 'keycloak')
     click.echo("\nStarted Keycloak")
-    #todo:setup keycloak realms
+    time.sleep(5)
+    click.echo("\nCreating realms\n")
+    keycloak_token =requests.post('https://'+ keycloak_hostname + '/auth/realms/master/protocol/openid-connect/token', data={'username': keycloak_user, "password": keycloak_password, "grant_type": "password", "client_id":"admin-cli"}, headers = {"Content-Type": "application/x-www-form-urlencoded"})
+    access_token = keycloak_token.json()['access_token']
+    click.echo("\nCreating migrant realm\n")
+    data_migrant = open('./migrant-realm-export.json', 'rb')
+    create_realm_migrant = requests.post('https://'+ keycloak_hostname + '/auth/admin/realms', data = data_migrant, headers={"Authorization": "Bearer "+ access_token, 'Content-Type': 'application/json'})
+    click.echo("\nCreating pa realm\n")
+    data_pa = open('./pa-realm-export.json', 'rb')
+    create_realm_pa = requests.post('https://'+ keycloak_hostname + '/auth/admin/realms', data = data_pa, headers={"Authorization": "Bearer "+ access_token, 'Content-Type': 'application/json'})
+    click.echo("\nCreating cso realm\n")
+    data_ngo = open('./ngo-realm-export.json', 'rb')
+    create_realm_ngo = requests.post('https://'+ keycloak_hostname + '/auth/admin/realms', data = data_ngo, headers={"Authorization": "Bearer "+ access_token, 'Content-Type': 'application/json'})
+    time.sleep(5)
+    click.echo("\nFinished keycloak setup\n")
 
     #starting rasa chatbot
     click.echo("\nStarting Chatbot containers deployment\n")
@@ -362,9 +376,10 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     start_service(docker,'rocketchat', 'rocketchat')
     time.sleep(15)
     show_logs(docker, 'rocketchat')
-    click.echo("\nStarted Keycloak")
+    click.echo("\nStarted Rocketchat")
 
     #needs testing
+    click.echo("\nSetting up Rocketchat")
     bot_name=rasa_bot
     rktauth = requests.post('https://'+ rocketchat_hostname + '/api/v1/login', data = {'username': rocketchat_admin, 'password': rocketchat_admin_pwd}, headers = {"Content-Type": "application/json"})
     click.echo(rktauth.content)
@@ -397,6 +412,7 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
     ##CREATE WEBHOOK
     rktres=requests.post('https://'+ rocketchat_hostname + '/api/v1/integrations.create', data={ 'type': 'webhook-outgoing', 'name': 'Rasa', 'event': 'sendMessage', 'enabled': 'true', 'username': bot_name, 'urls': ['http://chatbot:5005/webhooks/rocketchat/webhook'], 'scriptEnabled': 'true', 'channel':'all_direct_messages' }, headers = {"Content-Type": "application/json", 'X-Auth-Token': rkttk, 'X-User-Id': rktuid})
     click.echo(rktres.content)
+    click.echo("\nFinished Rocketchat setup")
 
 
     #starting the apps
