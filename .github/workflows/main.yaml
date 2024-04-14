@@ -13,7 +13,9 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -30,9 +32,9 @@ jobs:
       id: create_release
       uses: ncipollo/release-action@v1
       with:
-        artifacts: ${{ steps.pyinstaller.outputs.executable_path}}/micado_install
+        artifacts: '${{ steps.pyinstaller.outputs.executable_path}}/micado_install'
         body: |
           Release of Micado Installer
-          draft: false
-          prerelease: false
-          tag: ${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        tag: ${{ github.ref_name }}
