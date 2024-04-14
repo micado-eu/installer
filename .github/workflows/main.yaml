@@ -1,0 +1,38 @@
+name: Build Installer
+
+on:
+    push:
+      branches: 
+        - 'master'
+        - '2024'
+      tags:
+        - 'v*'
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    - name: Build executable
+      id: pyinstaller
+      uses: sayyid5416/pyinstaller@v1
+      with:
+        python_ver: '3.9'
+        spec: 'micado_install.py'
+        requirements: 'requirements.txt'
+        options: --onefile, --name "micado_install",
+
+    - name: Create Release
+      id: create_release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: ${{ steps.pyinstaller.outputs.executable_path}}/micado_install
+        body: |
+          Release of Micado Installer
+          draft: false
+          prerelease: false
+          tag: ${{ github.ref_name }}
