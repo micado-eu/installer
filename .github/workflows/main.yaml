@@ -28,6 +28,12 @@ jobs:
         requirements: 'requirements.txt'
         options: --onefile, --name "micado_install",
 
+    - name: Generate release tag
+      id: generate_release_tag
+      uses: alexvingg/next-release-tag@v1.0.3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        tag_prefix: ''
     - name: Create Release
       id: create_release
       uses: ncipollo/release-action@v1
@@ -37,7 +43,7 @@ jobs:
           Release of Micado Installer
         draft: false
         prerelease: false
-        tag: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+        tag: ${{ github.ref_type == 'tag' && github.ref_name || steps.generate_release_tag.outputs.release_tag }}
 
 
 
