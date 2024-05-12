@@ -37,4 +37,8 @@ jobs:
           Release of Micado Installer
         draft: false
         prerelease: false
-        tag: ${{ github.ref_name }}
+        tag: ${{ github.ref_type == 'tag' && github.ref_name || github.sha }}
+
+
+
+        

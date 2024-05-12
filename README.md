@@ -18,3 +18,6 @@ cd /usr/src/app
 pip3 install -r requirements.txt
 python micado_install.py prepare prepare
 ```
+```
+git push origin refs/heads/2024:refs/heads/2024
+```
