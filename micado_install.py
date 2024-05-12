@@ -1,6 +1,7 @@
-import click
-import os
-from python_on_whales import DockerClient
+import fileops
+import checks
+import git
+# from python_on_whales import DockerClient
 import requests
 import subprocess
 from dotenv import load_dotenv
@@ -8,21 +9,89 @@ from pathlib import Path
 import time
 import configparser
 from hashlib import sha256
+from typing_extensions import Annotated
+from password_validator import PasswordValidator
+import typer
+from rich import print
+import prepare
+
+app = typer.Typer()
+
+app = typer.Typer()
+app.add_typer(prepare.app, name="prepare")
+#app.add_typer(items.app, name="items")
 
 
 
 
-def create_folder(folder):
-    if not os.path.exists(folder):
-        os.makedirs(folder)
-        os.chown(folder, os.getuid(), os.getgid())
-        print("Directory " , folder ,  " Created ")
-    else:    
-        print("Directory " , folder ,  " already exists") 
+ 
+def pwd_callback(value: str):
+    print("Validating password")
+    schema = PasswordValidator()
+    schema.min(6).max(10).has().uppercase().has().lowercase().has().digits().has().no().spaces()
+    validation = schema.validate(value)
+    print(f"Validation was : {validation}")
+    if not validation:
+        raise typer.BadParameter("Only Camila is allowed")
+    return value
 
-def create_file(filename):
-    file = Path(filename)
-    file.touch(exist_ok=True)
+
+
+ #   folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images"]
+ #   [fileops.create_folder(i) for i in folder_list]
+
+    #create_folder("db_data")
+    #create_folder("weblate_data")
+    #create_folder("redis_data")
+    #create_folder("identity-server_data/deployment")
+    #create_folder("identity-server_data/tenants")
+    #create_folder("shared_images")
+    #create_folder("git_data")
+
+
+
+@app.command()
+def deploy(count, name):
+    """MICADO installer program"""
+    print("Deploying MICADO application")
+    for _ in range(count):
+        click.echo(f"Hello, {name}!")
+
+    folder_list=["db_data", "weblate_data", "redis_data", "identity-server_data/deployment", "identity-server_data/tenants", "shared_images", "translations_dir"]
+    [create_folder(i) for i in folder_list]
+
+@app.command()
+def configure(
+    db_password: Annotated[
+        str, typer.Option(
+            prompt="Insert the password for the database",
+            help="This is the root password for the MICADO database",
+            hide_input=True,
+        ),
+    ],
+    micado_password: Annotated[
+        str, typer.Option(
+            prompt="Insert the password for the MICADO application",
+            help="This is the password for the MICADO application",
+            hide_input=True,
+            callback=pwd_callback,
+        ),
+    ],
+):
+    print("Configuring MICADO application")
+    print(f"You choose for the DB password: {db_password}")
+    print(f"You choose for the MICADO password: {micado_password}")
+
+    if not checks.check_prepared():
+        print("MICADO is not prepared, you must execute the [bold green]prepare[/bold green] command first")
+        return
+
+
+if __name__ == '__main__':
+    app()
+
+
+""" 
 
 def start_service(docker, service, service_name):
     docker.compose.up(
@@ -135,15 +204,10 @@ def replace_in_git_ini_file(filename, group, key, value):
 @click.option("--weblate_registration_open", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="true")
 @click.option("--rasa_bot", prompt="The admin password of Weblate", help="The value of the password for the micado database", default="rasa_bot")
 
-def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_password, weblate_admin_password, keycloak_hostname, tz, micado_git_url,
- postgres_user, postgres_db, postgres_port,micado_db_user, micado_db_schema, keycloak_db_user, keycloak_db_pwd ,keycloak_db_schema, keycloak_user, keycloak_password,
- gitea_db_schema, gitea_username, gitea_password,gitea_email, migrants_hostname, pa_hostname, ngo_hostname, db_admin_hostname, analytic_hostname, translation_hostname,
- git_hostname, portainer_hostname, rocketchat_hostname, rasa_hostname, weblate_debug, weblate_loglevel, weblate_site_title, weblate_admin_name, weblate_admin_email,
- weblate_server_email, weblate_default_from_email, weblate_allowed_hosts, weblate_registration_open,weblate_email_host ,weblate_email_host_user, weblate_email_host_ssl,
- gitea_db_user, micado_translations_dir, micado_env, rocketchat_admin,rocketchat_admin_mail,algorithm,salt,key_length,buffer_0,buffer_1,
+def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deaf    "
+rocketchat_admin_mail,algorithm,salt,key_length,buffer_0,buffer_1,
  countly_admin, micado_weblate_project,rasa_bot, rasa_db_user, rasa_schema, bot_name, title_limit, weblate_postgres_password, weblate_email_host_password,
  gitea_db_pwd, rocketchat_admin_pwd, rocketchat_user, rocketchat_password, respond_to_livechat,pgadmin_default_email , mongo_replica_set_name):
-    """MICADO installer program"""
 
     #creating file and adding env variables
     create_file('./.env')
@@ -432,3 +496,4 @@ def main( micado_db_pwd, postgres_password, kc_admin_pwd, pgadmin_deafult_passwo
 if __name__ == '__main__':
     click.echo("\nCreating .env file. If you didn't set the variables with the flags, you will be asked to enter them. Just press enter to use the default written between square brackets")
     main()
+""" 
