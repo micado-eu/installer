@@ -27,7 +27,19 @@ def configure_env(template_str, env_vars, output_file=".env"):
 
 
 def pwd_callback(value: str) -> str:
-    #print("Validating password")
+    """
+    Validates a password input using the PasswordValidator schema.
+
+    Args:
+        value (str): The password to validate.
+
+    Returns:
+        str: The validated password.
+
+    Raises:
+        typer.BadParameter: If the password is empty or does not meet the validation rules.
+    """
+    # print("Validating password")
     if not value:
         raise typer.BadParameter("Password cannot be empty")
     schema = PasswordValidator()
@@ -35,13 +47,27 @@ def pwd_callback(value: str) -> str:
         10
     ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
     validation = schema.validate(value)
-    #print(f"Validation was : {validation}")
+    # print(f"Validation was : {validation}")
     if not validation:
-        raise typer.BadParameter("Password do not respect validation rules: must be between 6 and 10 characters, must contain at least one uppercase, lowercase, digit and special character")
+        raise typer.BadParameter(
+            "Password do not respect validation rules: must be between 6 and 10 characters, must contain at least one uppercase, lowercase, digit and special character"
+        )
     return value
 
 
 def email_callback(value: str) -> str:
+    """
+    Validates an email address input and returns the value if it is valid.
+
+    Args:
+        value (str): The email address to validate.
+
+    Returns:
+        str: The valid email address.
+
+    Raises:
+        typer.BadParameter: If the input email address is not in a valid format.
+    """
     email_regex = r"^[\w\.-]+@[\w\.-]+\.\w+$"
     if not re.match(email_regex, value):
         raise typer.BadParameter("Invalid email format")
@@ -49,6 +75,18 @@ def email_callback(value: str) -> str:
 
 
 def hostname_callback(value: str) -> str:
+    """
+    Validates and returns a hostname string.
+
+    Args:
+        value (str): The hostname to validate.
+
+    Returns:
+        str: The validated hostname.
+
+    Raises:
+        typer.BadParameter: If the provided hostname is invalid.
+    """
     hostname_regex = r"^(?=.{1,255}$)[0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?(?:\.[0-9A-Za-z]([0-9A-Za-z-]{0,61}[0-9A-Za-z])?)*\.?$"
     if not re.match(hostname_regex, value):
         raise typer.BadParameter("Invalid hostname format")
