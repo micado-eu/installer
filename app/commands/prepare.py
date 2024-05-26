@@ -1,8 +1,8 @@
 import typer
 #import requests
 from enum import Enum #, auto
-import git
-import fileops
+import app.core.git as git
+import app.core.fileops as fileops
 import os
 from typing_extensions import Annotated
 
@@ -42,7 +42,7 @@ def path_callback(value: str):
 
 
 @app.command()
-def prepare(release: Annotated[
+def download(release: Annotated[
                 Release, typer.Option()],
             path: Annotated[
                 str, typer.Option(

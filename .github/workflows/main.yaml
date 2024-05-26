@@ -19,12 +19,13 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+      
     - name: Build executable
       id: pyinstaller
       uses: sayyid5416/pyinstaller@v1
       with:
         python_ver: '3.9'
-        spec: 'micado_install.py'
+        spec: 'main.py'
         requirements: 'requirements.txt'
         options: --onefile, --name "micado_install",
 
@@ -47,4 +48,3 @@ jobs:
 
 
 
-        
