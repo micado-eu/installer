@@ -154,12 +154,7 @@ REDIS_IMAGE_TAG=latest            # The Docker image tag for the Redis image
 # Backend Configuration
 MICADO_BACKEND_IMAGE_TAG=latest   # The Docker image tag for the backend image
 MICADO_GIT_URL=https://github.com/micado-eu/micado # The Git URL for the MICADO backend
-ROCKETCHAT_HOSTNAME={{ rocketchat_hostname }} # The hostname for Rocket.Chat
-ROCKETCHAT_ADMIN=rocketchat_admin # The admin user for Rocket.Chat
-ROCKETCHAT_ADMIN_PWD={{ rocketchat_admin_password }} # The admin password for Rocket.Chat
 MICADO_TRANSLATIONS_DIR=/translations # The directory for translations in the MICADO backend
-COUNTLY_MIGRANTS_APP_ID={{ countly_migrants_app_id }} # The app ID for Countly (migrants)
-COUNTLY_MIGRANTS_API_KEY={{ countly_migrants_api_key }} # The API key for Countly (migrants)
 MICADO_DB_PWD={{ micado_db_password }}  # The password for the MICADO database user
 MICADO_DB_USER=micado_db_user     # The MICADO database user
 MICADO_DB_SCHEMA=public           # The database schema for the MICADO database
@@ -169,8 +164,6 @@ WEBLATE_EMAIL_HOST_USER=weblate_user # The email host user for Weblate
 WEBLATE_EMAIL_HOST_SSL=true       # Whether to use SSL for the Weblate email host
 WEBLATE_EMAIL_HOST_PASSWORD={{ weblate_email_host_password }} # The password for the Weblate email host user
 ANALYTIC_HOSTNAME={{ analytic_hostname }} # The hostname for the analytics application
-COUNTLY_ADMIN=countly_admin       # The admin user for Countly
-COUNTLY_ADMIN_PWD={{ countly_admin_password }} # The admin password for Countly
 ALGORITHM=HS256                   # The algorithm used for security
 SALT=salt_value                   # The salt value used for hashing
 KEY_LENGTH=32                     # The key length for security
@@ -303,26 +296,6 @@ def environment(
         ),
     ],
     timezone: Annotated[str, typer.Option(prompt="Enter the timezone")],
-    rocketchat_hostname: Annotated[
-        str,
-        typer.Option(
-            prompt="Enter the Rocket.Chat hostname", callback=hostname_callback
-        ),
-    ],
-    rocketchat_admin_password: Annotated[
-        str,
-        typer.Option(
-            prompt="Enter the Rocket.Chat admin password",
-            callback=pwd_callback,
-            hide_input=True,
-        ),
-    ],
-    countly_migrants_app_id: Annotated[
-        str, typer.Option(prompt="Enter the Countly Migrants app ID")
-    ],
-    countly_migrants_api_key: Annotated[
-        str, typer.Option(prompt="Enter the Countly Migrants API key")
-    ],
     micado_db_password: Annotated[
         str,
         typer.Option(
@@ -335,14 +308,6 @@ def environment(
         str,
         typer.Option(
             prompt="Enter the Weblate email host password",
-            callback=pwd_callback,
-            hide_input=True,
-        ),
-    ],
-    countly_admin_password: Annotated[
-        str,
-        typer.Option(
-            prompt="Enter the Countly admin password",
             callback=pwd_callback,
             hide_input=True,
         ),
@@ -391,13 +356,8 @@ def environment(
     print(f"You chose for the Translation platform hostname: {translation_hostname}")
     print(f"You chose for the Weblate PostgreSQL password: {weblate_postgres_password}")
     print(f"You chose for the timezone: {timezone}")
-    print(f"You chose for the Rocket.Chat hostname: {rocketchat_hostname}")
-    print(f"You chose for the Rocket.Chat admin password: {rocketchat_admin_password}")
-    print(f"You chose for the Countly Migrants app ID: {countly_migrants_app_id}")
-    print(f"You chose for the Countly Migrants API key: {countly_migrants_api_key}")
     print(f"You chose for the MICADO database password: {micado_db_password}")
     print(f"You chose for the Weblate email host password: {weblate_email_host_password}")
-    print(f"You chose for the Countly admin password: {countly_admin_password}")
     print(f"You chose for the algorithm password: {algorithm_password}")
     print(f"You chose for the MICADO Weblate key: {micado_weblate_key}")
     print(f"You chose for the Portainer hostname: {portainer_hostname}")
@@ -430,13 +390,8 @@ def environment(
         "translation_hostname": translation_hostname,
         "weblate_postgres_password": weblate_postgres_password,
         "timezone": timezone,
-        "rocketchat_hostname": rocketchat_hostname,
-        "rocketchat_admin_password": rocketchat_admin_password,
-        "countly_migrants_app_id": countly_migrants_app_id,
-        "countly_migrants_api_key": countly_migrants_api_key,
         "micado_db_password": micado_db_password,
         "weblate_email_host_password": weblate_email_host_password,
-        "countly_admin_password": countly_admin_password,
         "algorithm_password": algorithm_password,
         "micado_weblate_key": micado_weblate_key,
         "portainer_hostname": portainer_hostname,
