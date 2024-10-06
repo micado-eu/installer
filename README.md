@@ -1,6 +1,57 @@
 # MICADO installer
 
+This project is a command-line interface (CLI) application for the MICADO project, built with [Typer](https://typer.tiangolo.com/). It provides functionalities to properly deploy the MICADO platform on a linux based system.
+
+## Features
+
+- **Download GitHub Releases:** Fetch and download release tarballs from the MICADO GitHub repository.
+- **File Operations:** Extract tarballs and manage file operations within specified directories.
+- **Docker Management:** Execute Docker commands using `docker-compose` files included in the downloaded content.
+
+## Example Commands
+
+### Prepare Command
+
+```sh
+micado_install prepare prepare --release v1.0.0 --path /path/to/install
+```
+### Configure Command
+
+```sh
+micado_install configure --config-file config.yaml --path /path/to/install
+```
+
+### Deploy Command
+
+```sh
+micado_install deploy --docker-compose /path/to/install/docker-compose.yaml
+```
+
 # Usage
+
+## Downloading and Installing the Compiled Program
+
+1. Navigate to the [MICADO installer Releases page](https://github.com/micado-eu/installer/releases) of the repository.
+2. Find the latest release tagged with the version you are interested in (e.g., `v1.0.0`).
+3. Download the `micado_install` executable file from the release assets.
+
+#### Install the Compiled Program
+
+1. Ensure the downloaded file (`micado_install`) has executable permissions. On Unix-like systems, you can do this with the following command:
+    ```sh
+    chmod +x micado_install
+    ```
+
+2. Move the executable to a directory that is in your system's `PATH` (optional but recommended for easy access). For example:
+    ```sh
+    sudo mv micado_install /usr/local/bin/
+    ```
+
+3. Verify the installation by running the executable:
+    ```sh
+    micado_install --help
+    ```
+
 
 ## Prepare Application
 
@@ -123,59 +174,6 @@ python main.py prepare prepare
 This will allow for a consistent development environment where the code is executed.
 
 
-# Overview
-
-This project is a command-line interface (CLI) application for the MICADO project, built with [Typer](https://typer.tiangolo.com/). It provides functionalities to properly deploy the MICADO platform on a linux based system.
-
-## Features
-
-- **Download GitHub Releases:** Fetch and download release tarballs from the MICADO GitHub repository.
-- **File Operations:** Extract tarballs and manage file operations within specified directories.
-- **Docker Management:** Execute Docker commands using `docker-compose` files included in the downloaded content.
-
-## Example Commands
-
-### Prepare Command
-
-```sh
-micado_install prepare prepare --release v1.0.0 --path /path/to/install
-```
-### Configure Command
-
-```sh
-micado_install configure --config-file config.yaml --path /path/to/install
-```
-
-### Deploy Command
-
-```sh
-micado_install deploy --docker-compose /path/to/install/docker-compose.yaml
-```
-
-## Downloading and Installing the Compiled Program
-
-1. Navigate to the [GitHub Releases page](https://github.com/yourusername/yourrepository/releases) of the repository.
-2. Find the latest release tagged with the version you are interested in (e.g., `v1.0.0`).
-3. Download the `micado_install` executable file from the release assets.
-
-#### Install the Compiled Program
-
-1. Ensure the downloaded file (`micado_install`) has executable permissions. On Unix-like systems, you can do this with the following command:
-    ```sh
-    chmod +x micado_install
-    ```
-
-2. Move the executable to a directory that is in your system's `PATH` (optional but recommended for easy access). For example:
-    ```sh
-    sudo mv micado_install /usr/local/bin/
-    ```
-
-3. Verify the installation by running the executable:
-    ```sh
-    micado_install --help
-    ```
-
-
 ## Project Structure
 
 ```
@@ -280,6 +278,10 @@ pytest tests/
 
 ## GitHub Actions Workflow Description
 
+The goal of this automation is to simplify and streamline the process of generating an executable file for the Micado project. Each time the project’s main branches are updated or a new version is tagged, the system automatically compiles the Python code into a standalone executable file. This means that non-technical users can easily install and run the software without needing to deal with the source code or manual setup. By automating the creation of the executable, this approach saves time, ensures consistency, and reduces errors, allowing developers to focus on improving the project while the system handles the technical work of packaging the software for release.
+
+### Workflow Overview
+
 This project uses GitHub Actions to automate the build and release process. The workflow is defined in `.github/workflows/main.yaml` and performs the following steps:
 
 1. **Checkout Repository**: Clones the repository's code to the GitHub runner.
@@ -326,5 +328,4 @@ Contributions are welcome! Please open an issue or submit a pull request for any
 
 This project is licensed under the MIT License.
 
-------------------------
 
