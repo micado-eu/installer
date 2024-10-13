@@ -119,6 +119,10 @@ NGO_HOSTNAME={{ ngo_hostname }}     # The hostname for the NGO application
 
 # Nginx Configuration
 NGINX_IMAGE_TAG=1.25.3.1-3-buster-fat            # The Docker image tag for the Nginx image
+MIGRANTS_IMAGE_TAG=v2.5.0
+PA_IMAGE_TAG=v2.5.0
+NGO_IMAGE_TAG=v2.5.0
+BACKEND_IMAGE_TAG=v2.5.0
 
 # Traefik Configuration
 TRAEFIK_IMAGE_TAG=v2.11.2          # The Docker image tag for the Traefik image
@@ -158,17 +162,15 @@ REDIS_IMAGE_TAG=7-alpine            # The Docker image tag for the Redis image
 
 # Backend Configuration
 MICADO_BACKEND_IMAGE_TAG=v2.5.0   # The Docker image tag for the backend image
-MICADO_GIT_URL=https://github.com/micado-eu/micado # The Git URL for the MICADO backend
+MICADO_GIT_URL=http://git # The Git URL for the MICADO backend
 MICADO_TRANSLATIONS_DIR=/translations # The directory for translations in the MICADO backend
 MICADO_DB_PWD={{ micado_db_password }}  # The password for the MICADO database user
-MICADO_DB_USER=micado_db_user     # The MICADO database user
-MICADO_DB_SCHEMA=public           # The database schema for the MICADO database
-MICADO_ENV=development            # The environment for the MICADO backend
-WEBLATE_EMAIL_HOST={{ weblate_email_host }} # The email host for Weblate
-WEBLATE_EMAIL_HOST_USER=weblate_user # The email host user for Weblate
+MICADO_DB_USER=micadoapp     # The MICADO database user
+MICADO_DB_SCHEMA=micadoapp           # The database schema for the MICADO database
+MICADO_ENV=prod            # The environment for the MICADO backend
+MICADO_WEBLATE_PROJECT=micado
 WEBLATE_EMAIL_HOST_SSL=true       # Whether to use SSL for the Weblate email host
 WEBLATE_EMAIL_HOST_PASSWORD={{ weblate_email_host_password }} # The password for the Weblate email host user
-ANALYTIC_HOSTNAME={{ analytic_hostname }} # The hostname for the analytics application
 ALGORITHM=aes-192-cbc                   # The algorithm used for security
 SALT={{ algorithm_password }}                   # The salt value used for hashing
 KEY_LENGTH=24                     # The key length for security
@@ -182,6 +184,15 @@ PORTAINER_IMAGE_TAG=2.19.5-alpine        # The Docker image tag for the Portaine
 PORTAINER_HOSTNAME={{ portainer_hostname }} # The hostname for the Portainer dashboard
 
 TITLE_LIMIT=30
+
+# --------- HOSTNAMES -----------
+API_HOSTNAME={{ api_hostname }}          # backend API hostname
+
+
+# -------- WEBLATE PART ----------
+WEBLATE_DEBUG=0
+WEBLATE_SITE_TITLE=MICADO weblate
+
 """
 
 app = typer.Typer()
@@ -228,13 +239,6 @@ def environment(
         str,
         typer.Option(
             prompt="Enter the NGO application hostname", callback=hostname_callback
-        ),
-    ],
-    analytic_hostname: Annotated[
-        str,
-        typer.Option(
-            prompt="Enter the Analytics application hostname",
-            callback=hostname_callback,
         ),
     ],
     traefik_acme_email: Annotated[
@@ -334,6 +338,10 @@ def environment(
         str,
         typer.Option(prompt="Enter the Portainer hostname", callback=hostname_callback),
     ],
+    api_hostname: Annotated[
+        str,
+        typer.Option(prompt="Enter the API hostname", callback=hostname_callback),
+    ],
 ):
     """
     Configures the MICADO application by prompting the user for various environment variables and then creating the necessary folders.
@@ -349,7 +357,6 @@ def environment(
     print(f"You chose for the Migrants application hostname: {migrants_hostname}")
     print(f"You chose for the Public Administration application hostname: {pa_hostname}")
     print(f"You chose for the NGO application hostname: {ngo_hostname}")
-    print(f"You chose for the Analytics application hostname: {analytic_hostname}")
     print(f"You chose for the Traefik ACME email: {traefik_acme_email}")
     print(f"You chose for the Traefik hostname: {traefik_hostname}")
     print(f"You chose for the Gitea Git server hostname: {git_hostname}")
@@ -368,6 +375,7 @@ def environment(
     print(f"You chose for the algorithm password: {algorithm_password}")
     print(f"You chose for the MICADO Weblate key: {micado_weblate_key}")
     print(f"You chose for the Portainer hostname: {portainer_hostname}")
+    print(f"You chose for the API hostname: {api_hostname}")
     
 
     if not checks.check_prepared():
@@ -383,7 +391,6 @@ def environment(
         "migrants_hostname": migrants_hostname,
         "pa_hostname": pa_hostname,
         "ngo_hostname": ngo_hostname,
-        "analytic_hostname": analytic_hostname,
         "traefik_acme_email": traefik_acme_email,
         "traefik_hostname": traefik_hostname,
         "git_hostname": git_hostname,
@@ -402,6 +409,7 @@ def environment(
         "algorithm_password": algorithm_password,
         "micado_weblate_key": micado_weblate_key,
         "portainer_hostname": portainer_hostname,
+        "api_hostname": api_hostname,
     }
 
     configure_env(env_template, env_vars)
