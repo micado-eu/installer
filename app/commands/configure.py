@@ -96,41 +96,45 @@ def hostname_callback(value: str) -> str:
 env_template = """
 # PostgreSQL Configuration
 POSTGRES_DB=micado                # The name of the PostgreSQL database
-POSTGRES_USER=micado_user         # The PostgreSQL database user
+POSTGRES_USER=micado              # The PostgreSQL database user
+POSTGRES_PORT=5432
 POSTGRES_PASSWORD={{ postgres_password }} # The password for the PostgreSQL database user
 
 # Keycloak Configuration
-KEYCLOAK_IMAGE_TAG=latest         # The Docker image tag for the Keycloak image
-KEYCLOAK_DB_USER=micado_keycloak  # The database user for Keycloak
-KEYCLOAK_DB_SCHEMA=public         # The database schema for Keycloak
+KEYCLOAK_IMAGE_TAG=23.0.0         # The Docker image tag for the Keycloak image
+KEYCLOAK_DB_USER=keycloak  # The database user for Keycloak
+KEYCLOAK_DB_SCHEMA=keycloak         # The database schema for Keycloak
+KEYCLOAK_DB_PWD={{ postgres_password }}                  # CHANGE IT
 KC_LOG_LEVEL=INFO                 # The log level for Keycloak
-KC_REALM_NAME=micado_realm        # The realm name for Keycloak
 KEYCLOAK_ADMIN=admin              # The admin username for Keycloak
 KEYCLOAK_ADMIN_PASSWORD={{ keycloak_admin_password }} # The admin password for Keycloak
+MICADO_KC_REALM_ADMIN_PASSWORD={{ keycloak_admin_password }}      # 
+NGO_REALM_CLIENT_SECRET=secret               # CHANGE IT
+MIGRANT_REALM_CLIENT_SECRET=secret           # CHANGE IT
+PA_REALM_CLIENT_SECRET=secret                # CHANGE IT
 IDENTITY_HOSTNAME={{ identity_hostname }} # The hostname for the Keycloak identity server
 MIGRANTS_HOSTNAME={{ migrants_hostname }} # The hostname for the Migrants application
 PA_HOSTNAME={{ pa_hostname }}       # The hostname for the Public Administration application
 NGO_HOSTNAME={{ ngo_hostname }}     # The hostname for the NGO application
 
 # Nginx Configuration
-NGINX_IMAGE_TAG=latest            # The Docker image tag for the Nginx image
-ANALYTIC_HOSTNAME={{ analytic_hostname }} # The hostname for the analytics application
+NGINX_IMAGE_TAG=1.25.3.1-3-buster-fat            # The Docker image tag for the Nginx image
 
 # Traefik Configuration
-TRAEFIK_IMAGE_TAG=latest          # The Docker image tag for the Traefik image
+TRAEFIK_IMAGE_TAG=v2.11.2          # The Docker image tag for the Traefik image
 TRAEFIK_LOG_LEVEL=DEBUG           # The log level for Traefik
 TRAEFIK_ACME_EMAIL={{ traefik_acme_email }} # The email used for ACME certificate registration
 TRAEFIK_HOSTNAME={{ traefik_hostname }} # The hostname for the Traefik dashboard
 
 # Git Configuration
 GIT_HOSTNAME={{ git_hostname }}     # The hostname for the Gitea Git server
-GITEA_IMAGE_TAG=latest            # The Docker image tag for the Gitea image
-GITEA_DB_USER=gitea_user          # The database user for Gitea
+GITEA_IMAGE_TAG=1.21.11            # The Docker image tag for the Gitea image
+GITEA_DB_USER=gitea                # The database user for Gitea
 GITEA_DB_PWD={{ gitea_db_password }}       # The password for the Gitea database user
-GITEA_DB_SCHEMA=public            # The database schema for Gitea
+GITEA_DB_SCHEMA=gitea               # The database schema for Gitea
 
 # Weblate Configuration
-WEBLATE_IMAGE_TAG=latest          # The Docker image tag for the Weblate image
+WEBLATE_IMAGE_TAG=5.5.0.1          # The Docker image tag for the Weblate image
 WEBLATE_EMAIL_HOST={{ weblate_email_host }} # The email host for Weblate
 WEBLATE_EMAIL_HOST_USER={{ weblate_email_host_user }} # The email host user for Weblate
 WEBLATE_SERVER_EMAIL={{ weblate_server_email }} # The server email for Weblate
@@ -141,18 +145,19 @@ WEBLATE_ADMIN_NAME=admin          # The admin name for Weblate
 WEBLATE_ADMIN_EMAIL={{ weblate_admin_email }} # The admin email for Weblate
 TRANSLATION_HOSTNAME={{ translation_hostname }} # The hostname for the translation platform
 WEBLATE_REGISTRATION_OPEN=true    # Whether registration is open on Weblate
+WEBLATE_DB_SCHEMA=weblate
 WEBLATE_POSTGRES_PASSWORD={{ weblate_postgres_password }} # The password for the Weblate PostgreSQL user
-WEBLATE_POSTGRES_USER=weblate_db_user # The Weblate PostgreSQL user
+WEBLATE_POSTGRES_USER=weblate # The Weblate PostgreSQL user
 WEBLATE_POSTGRES_HOST=micado_db   # The PostgreSQL host for Weblate
 WEBLATE_POSTGRES_PORT=5432        # The PostgreSQL port for Weblate
 WEBLATE_WORKERS=2                 # The number of worker processes for Weblate
 TZ={{ timezone }}                  # The timezone for Weblate
 
 # Redis Configuration
-REDIS_IMAGE_TAG=latest            # The Docker image tag for the Redis image
+REDIS_IMAGE_TAG=7-alpine            # The Docker image tag for the Redis image
 
 # Backend Configuration
-MICADO_BACKEND_IMAGE_TAG=latest   # The Docker image tag for the backend image
+MICADO_BACKEND_IMAGE_TAG=v2.5.0   # The Docker image tag for the backend image
 MICADO_GIT_URL=https://github.com/micado-eu/micado # The Git URL for the MICADO backend
 MICADO_TRANSLATIONS_DIR=/translations # The directory for translations in the MICADO backend
 MICADO_DB_PWD={{ micado_db_password }}  # The password for the MICADO database user
@@ -164,17 +169,19 @@ WEBLATE_EMAIL_HOST_USER=weblate_user # The email host user for Weblate
 WEBLATE_EMAIL_HOST_SSL=true       # Whether to use SSL for the Weblate email host
 WEBLATE_EMAIL_HOST_PASSWORD={{ weblate_email_host_password }} # The password for the Weblate email host user
 ANALYTIC_HOSTNAME={{ analytic_hostname }} # The hostname for the analytics application
-ALGORITHM=HS256                   # The algorithm used for security
-SALT=salt_value                   # The salt value used for hashing
-KEY_LENGTH=32                     # The key length for security
-BUFFER_0=buffer_value_0           # Buffer value 0
-BUFFER_1=buffer_value_1           # Buffer value 1
-ALGORITHM_PASSWORD={{ algorithm_password }} # The algorithm password
+ALGORITHM=aes-192-cbc                   # The algorithm used for security
+SALT={{ algorithm_password }}                   # The salt value used for hashing
+KEY_LENGTH=24                     # The key length for security
+BUFFER_0=16           # Buffer value 0
+BUFFER_1=0           # Buffer value 1
 MICADO_WEBLATE_KEY={{ micado_weblate_key }}    # The key for Weblate integration
+ALGORITHM_PASSWORD={{ algorithm_password }}                   # The salt value used for hashing
 
 # Portainer Configuration
-PORTAINER_IMAGE_TAG=latest        # The Docker image tag for the Portainer image
+PORTAINER_IMAGE_TAG=2.19.5-alpine        # The Docker image tag for the Portainer image
 PORTAINER_HOSTNAME={{ portainer_hostname }} # The hostname for the Portainer dashboard
+
+TITLE_LIMIT=30
 """
 
 app = typer.Typer()
@@ -404,8 +411,6 @@ def environment(
         "db_data",
         "weblate_data",
         "redis_data",
-        "identity-server_data/deployment",
-        "identity-server_data/tenants",
         "shared_images",
         "translations_dir",
     ]
