@@ -42,7 +42,6 @@ def check_configured() -> bool:
         "MIGRANTS_HOSTNAME",
         "PA_HOSTNAME",
         "NGO_HOSTNAME",
-        "ANALYTIC_HOSTNAME",
         "TRAEFIK_ACME_EMAIL",
         "TRAEFIK_HOSTNAME",
         "GIT_HOSTNAME",
