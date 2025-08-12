@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       ACTION_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'tag_push' || 'branch_push' }}
     permissions:
