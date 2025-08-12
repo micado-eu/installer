@@ -55,7 +55,7 @@ def pwd_callback(value: str) -> str:
     # print(f"Validation was : {validation}")
     if not validation:
         raise typer.BadParameter(
-            "Password do not respect validation rules: must be between 6 and 64 characters, must contain at least one uppercase, lowercase, digit and special character"
+            "Invalid password. Requirements: 8–64 chars, at least one uppercase, one lowercase, one digit, one special character, and no spaces."
         )
     return value
 
