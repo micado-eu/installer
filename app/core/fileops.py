@@ -1,17 +1,21 @@
 import os
 import tarfile
+from pathlib import Path
 
 def create_folder(folder):
     if not os.path.exists(folder):
-        os.makedirs(folder)
-        os.chown(folder, os.getuid(), os.getgid())
+        os.makedirs(folder, exist_ok=True)
+        try:
+            os.chown(folder, os.getuid(), os.getgid())
+        except Exception:
+            # Non-root / Windows / container: ignore chown failures
+            pass
         print("Directory " , folder ,  " Created ")
     else:    
         print("Directory " , folder ,  " already exists") 
 
 def create_file(filename):
-    file = Path(filename)
-    file.touch(exist_ok=True)
+    Path(filename).touch(exist_ok=True)
 
 def extract_tarball(tarball_path):
     if not os.path.isfile(tarball_path):
