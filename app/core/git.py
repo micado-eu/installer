@@ -23,9 +23,15 @@ def get_github_releases_enum(owner, repo, exclude_releases=None):
         releases = response.json()
         release_enum = []
         for release in releases:
-            if release["name"] not in exclude_releases:
+ #           if release["name"] not in exclude_releases:
                 # Add each release name to the enumeration
-                release_enum.append((release["name"], release["name"]))
+ #               release_enum.append((release["name"], release["name"]))
+            tag = release.get("tag_name") or release.get("name")
+            if not tag:
+                continue
+            if release.get("name") in exclude_releases:
+                continue
+            release_enum.append((tag, tag))
         return release_enum
     else:
         print("Failed to fetch releases. Status code:", response.status_code)
