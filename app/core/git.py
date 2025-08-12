@@ -46,7 +46,7 @@ def download_release_tarball(owner, repo, release_name):
     """
     print(f"Downloading tarball for release {release_name}...")
     # TODO remove this line once the release is ready
-    release_name = "2.0.0"  # Replace with the name of the release 2.0.0 for testing
+    # release_name = "2.0.0"  # Replace with the name of the release 2.0.0 for testing
     url = f"https://github.com/{owner}/{repo}/releases/download/{release_name}/{micado_release_file}{release_name}.tar.gz"
     print(url)
     response = requests.get(url)
