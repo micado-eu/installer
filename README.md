@@ -18,7 +18,7 @@ micado_install prepare prepare --release v1.0.0 --path /path/to/install
 ### Configure Command
 
 ```sh
-micado_install configure --config-file config.yaml --path /path/to/install
+micado_install configure environment
 ```
 
 ### Deploy Command
@@ -256,7 +256,7 @@ To run the installer in development, use the following Docker command to execute
 4. Run the installer:
 
     ```sh
-    python micado_install.py prepare prepare
+    python main.py prepare
     ```
 
 ### Adding New Commands
