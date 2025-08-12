@@ -40,17 +40,22 @@ def pwd_callback(value: str) -> str:
         typer.BadParameter: If the password is empty or does not meet the validation rules.
     """
     # print("Validating password")
-    if not value:
+    if value is None:
         raise typer.BadParameter("Password cannot be empty")
-    schema = PasswordValidator()
-    schema.min(6).max(
-        10
-    ).has().uppercase().has().lowercase().has().digits().has().no().spaces()
+    value = value.strip()
+
+    schema = (PasswordValidator()
+          .min(8).max(64)
+          .has().uppercase()
+          .has().lowercase()
+          .has().digits()
+          .has().symbols()
+          .has().no().spaces())
     validation = schema.validate(value)
     # print(f"Validation was : {validation}")
     if not validation:
         raise typer.BadParameter(
-            "Password do not respect validation rules: must be between 6 and 10 characters, must contain at least one uppercase, lowercase, digit and special character"
+            "Password do not respect validation rules: must be between 6 and 64 characters, must contain at least one uppercase, lowercase, digit and special character"
         )
     return value
 
@@ -351,8 +356,8 @@ def environment(
     Finally, the function creates a list of folders that are needed for the application and calls the `create_folder` function for each one.
     """
     print("Configuring MICADO application")
-    print(f"You chose for the PostgreSQL password: {postgres_password}")
-    print(f"You chose for the Keycloak admin password: {keycloak_admin_password}")
+    #print(f"You chose for the PostgreSQL password: {postgres_password}")
+    #print(f"You chose for the Keycloak admin password: {keycloak_admin_password}")
     print(f"You chose for the Keycloak identity hostname: {identity_hostname}")
     print(f"You chose for the Migrants application hostname: {migrants_hostname}")
     print(f"You chose for the Public Administration application hostname: {pa_hostname}")
@@ -360,18 +365,18 @@ def environment(
     print(f"You chose for the Traefik ACME email: {traefik_acme_email}")
     print(f"You chose for the Traefik hostname: {traefik_hostname}")
     print(f"You chose for the Gitea Git server hostname: {git_hostname}")
-    print(f"You chose for the Gitea database password: {gitea_db_password}")
+    #print(f"You chose for the Gitea database password: {gitea_db_password}")
     print(f"You chose for the Weblate email host: {weblate_email_host}")
     print(f"You chose for the Weblate email host user: {weblate_email_host_user}")
     print(f"You chose for the Weblate server email: {weblate_server_email}")
     print(f"You chose for the Weblate default from email: {weblate_default_from_email}")
-    print(f"You chose for the Weblate admin password: {weblate_admin_password}")
+    #print(f"You chose for the Weblate admin password: {weblate_admin_password}")
     print(f"You chose for the Weblate admin email: {weblate_admin_email}")
     print(f"You chose for the Translation platform hostname: {translation_hostname}")
-    print(f"You chose for the Weblate PostgreSQL password: {weblate_postgres_password}")
+    #print(f"You chose for the Weblate PostgreSQL password: {weblate_postgres_password}")
     print(f"You chose for the timezone: {timezone}")
-    print(f"You chose for the MICADO database password: {micado_db_password}")
-    print(f"You chose for the Weblate email host password: {weblate_email_host_password}")
+    #print(f"You chose for the MICADO database password: {micado_db_password}")
+    #print(f"You chose for the Weblate email host password: {weblate_email_host_password}")
     print(f"You chose for the algorithm password: {algorithm_password}")
     print(f"You chose for the MICADO Weblate key: {micado_weblate_key}")
     print(f"You chose for the Portainer hostname: {portainer_hostname}")
