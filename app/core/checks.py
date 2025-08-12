@@ -12,6 +12,7 @@ def check_prepared() -> bool:
     
     all_present = True
     
+    print(f"Checking preparation in: {os.getcwd()}")
     for file in required_files:
         if not os.path.isfile(file):
             print(f"Required file missing: {file}")
@@ -60,6 +61,7 @@ def check_configured() -> bool:
         "ALGORITHM_PASSWORD",
         "MICADO_WEBLATE_KEY",
         "PORTAINER_HOSTNAME",
+        "API_HOSTNAME",
     ]
     
     if not os.path.isfile(".env"):
