@@ -53,7 +53,7 @@ def path_callback(value: str):
         typer.BadParameter: If the provided path does not exist.
     """
     if not os.path.isdir(value):
-        raise typer.BadParameter(f"The path {value} you indicated do not exists!")
+        raise typer.BadParameter(f"The path {value} (resolved: {os.path.abspath(value)}) does not exist.")
     return value
 
 
@@ -65,7 +65,7 @@ def download(
         typer.Option(
             prompt="Insert the path where the MICADO application will be installed",
             help="This is the path where the MICADO application will be installed",
-            hide_input=True,
+            hide_input=False,
             callback=path_callback,
         ),
     ],
