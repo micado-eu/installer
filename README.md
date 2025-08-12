@@ -13,12 +13,41 @@ This project is a command-line interface (CLI) application for the MICADO projec
 ### Prepare Command
 
 ```sh
-micado_install prepare prepare --release v1.0.0 --path /path/to/install
+micado_install prepare download --release v1.0.0 --path /path/to/install
 ```
 ### Configure Command
 
 ```sh
 micado_install configure environment
+
+OR
+
+micado_install configure environment \
+  --postgres-password 'Abcdef1!' \
+  --keycloak-admin-password 'Abcdef1!' \
+  --identity-hostname id.example.local \
+  --migrants-hostname migrants.example.local \
+  --pa-hostname pa.example.local \
+  --ngo-hostname ngo.example.local \
+  --traefik-acme-email admin@example.com \
+  --traefik-hostname traefik.example.local \
+  --git-hostname git.example.local \
+  --gitea-db-password 'Abcdef1!' \
+  --weblate-email-host smtp.example.local \
+  --weblate-email-host-user weblate \
+  --weblate-server-email weblate@example.local \
+  --weblate-default-from-email weblate@example.local \
+  --weblate-admin-password 'Abcdef1!' \
+  --weblate-admin-email weblate-admin@example.local \
+  --translation-hostname translate.example.local \
+  --weblate-postgres-password 'Abcdef1!' \
+  --timezone 'Europe/Rome' \
+  --micado-db-password 'Abcdef1!' \
+  --weblate-email-host-password 'Abcdef1!' \
+  --algorithm-password 'Abcdef1!' \
+  --micado-weblate-key 'abcdef0123456789' \
+  --portainer-hostname portainer.example.local \
+  --api-hostname api.example.local
 ```
 
 ### Deploy Command
