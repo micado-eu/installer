@@ -16,7 +16,7 @@ def compose_up():
 
     print("Deploying MICADO application")
     try:
-        result = subprocess.run(["docker-compose", "up", "-d"], check=True)
+        result = subprocess.run(["docker", "compose", "up", "-d"], check=True)
         if result.returncode == 0:
             print("[bold green]MICADO application deployed successfully![/bold green]")
         else:
@@ -31,7 +31,7 @@ def compose_down():
     """
     print("Stopping and removing MICADO application")
     try:
-        result = subprocess.run(["docker-compose", "down"], check=True)
+        result = subprocess.run(["docker", "compose", "down"], check=True)
         if result.returncode == 0:
             print("[bold green]MICADO application stopped and removed successfully![/bold green]")
         else:
