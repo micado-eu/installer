@@ -128,6 +128,7 @@ MIGRANTS_IMAGE_TAG=v2.5.0
 PA_IMAGE_TAG=v2.5.0
 NGO_IMAGE_TAG=v2.5.0
 BACKEND_IMAGE_TAG=v2.5.0
+PGROONGA_IMAGE_TAG=3.2.0-alpine-16-slim
 
 # Traefik Configuration
 TRAEFIK_IMAGE_TAG=v2.11.2          # The Docker image tag for the Traefik image
