@@ -5,7 +5,8 @@ import re
 from jinja2 import Template
 from typing_extensions import Annotated
 from app.core.fileops import create_folder
-
+import secrets
+import string
 
 def configure_env(template_str, env_vars, output_file=".env"):
     """
@@ -25,6 +26,14 @@ def configure_env(template_str, env_vars, output_file=".env"):
         f.write(rendered_env)
     print(f"Generated {output_file} file successfully!")
 
+
+def _gen_random_key(length: int = 32) -> str:
+    """
+    Generate a cryptographically secure random string of given length,
+    composed only of lowercase letters and digits.
+    """
+    alphabet = string.ascii_lowercase + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 def pwd_callback(value: str) -> str:
     """
@@ -142,6 +151,11 @@ GITEA_IMAGE_TAG=1.21.11            # The Docker image tag for the Gitea image
 GITEA_DB_USER=gitea                # The database user for Gitea
 GITEA_DB_PWD={{ gitea_db_password }}       # The password for the Gitea database user
 GITEA_DB_SCHEMA=gitea               # The database schema for Gitea
+GITEA_ADMIN=root
+GITEA_ADMIN_PASSWORD={{ gitea_admin_password }}
+GITEA_ADMIN_EMAIL={{ gitea_admin_email }}
+GITEA_SECRET_KEY={{ gitea_secret_key }}
+GITEA_INTERNAL_TOKEN={{ gitea_token }}
 
 # Weblate Configuration
 WEBLATE_IMAGE_TAG=5.5.0.1          # The Docker image tag for the Weblate image
@@ -269,6 +283,21 @@ def environment(
             hide_input=True,
         ),
     ],
+    gitea_admin_email: Annotated[
+        str,
+        typer.Option(
+            prompt="Enter the Gitea admin email",
+            callback=email_callback,
+        ),
+    ],
+    gitea_admin_password: Annotated[
+        str,
+        typer.Option(
+            prompt="Enter the Gitea admin password",
+            callback=pwd_callback,
+            hide_input=True,
+        ),
+    ],    
     weblate_email_host: Annotated[
         str,
         typer.Option(prompt="Enter the Weblate email host", callback=hostname_callback),
@@ -390,6 +419,10 @@ def environment(
         )
         return
 
+    # Auto-generate 32-char lowercase+digit strings for Gitea secrets
+    gitea_secret_key = _gen_random_key(32)
+    gitea_token = _gen_random_key(32)
+
     env_vars = {
         "postgres_password": postgres_password,
         "keycloak_admin_password": keycloak_admin_password,
@@ -416,6 +449,10 @@ def environment(
         "micado_weblate_key": micado_weblate_key,
         "portainer_hostname": portainer_hostname,
         "api_hostname": api_hostname,
+        "gitea_admin_email": gitea_admin_email,
+        "gitea_admin_password": gitea_admin_password,
+        "gitea_secret_key": gitea_secret_key,
+        "gitea_token": gitea_token,
     }
 
     configure_env(env_template, env_vars)
@@ -427,6 +464,7 @@ def environment(
         "redis_data",
         "shared_images",
         "translations_dir",
+        "git_data",
     ]
     [create_folder(i) for i in folder_list]
 
