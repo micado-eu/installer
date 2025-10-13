@@ -33,6 +33,8 @@ micado_install configure environment \
   --traefik-hostname traefik.example.local \
   --git-hostname git.example.local \
   --gitea-db-password 'Abcdef1!' \
+  --gitea-admin-password 'Abcdef1!' \
+  --gitea-admin-email admin@example.com \
   --weblate-email-host smtp.example.local \
   --weblate-email-host-user weblate \
   --weblate-server-email weblate@example.local \
@@ -139,6 +141,14 @@ micado_install deploy compose-up
 ```
 
 This command checks if the environment is prepared by verifying the presence of necessary files and directories, then it runs `docker-compose up -d`.
+
+### Finalize the deployment
+Some components require some additional operation that can be done only after that the service are started.
+To do this you will need to execute:
+
+``` bash
+micao_install deploy finalize-deployment
+```
 
 ### Stop and Remove Application
 
