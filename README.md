@@ -8,56 +8,6 @@ This project is a command-line interface (CLI) application for the MICADO projec
 - **File Operations:** Extract tarballs and manage file operations within specified directories.
 - **Docker Management:** Execute Docker commands using `docker-compose` files included in the downloaded content.
 
-## Example Commands
-
-### Prepare Command
-
-```sh
-micado_install prepare download --release v1.0.0 --path /path/to/install
-```
-### Configure Command
-
-```sh
-micado_install configure environment
-
-OR
-
-micado_install configure environment \
-  --postgres-password 'Abcdef1!' \
-  --keycloak-admin-password 'Abcdef1!' \
-  --identity-hostname id.example.local \
-  --migrants-hostname migrants.example.local \
-  --pa-hostname pa.example.local \
-  --ngo-hostname ngo.example.local \
-  --traefik-acme-email admin@example.com \
-  --traefik-hostname traefik.example.local \
-  --git-hostname git.example.local \
-  --gitea-db-password 'Abcdef1!' \
-  --gitea-admin-password 'Abcdef1!' \
-  --gitea-admin-email admin@example.com \
-  --weblate-email-host smtp.example.local \
-  --weblate-email-host-user weblate \
-  --weblate-server-email weblate@example.local \
-  --weblate-default-from-email weblate@example.local \
-  --weblate-admin-password 'Abcdef1!' \
-  --weblate-admin-email weblate-admin@example.local \
-  --translation-hostname translate.example.local \
-  --weblate-postgres-password 'Abcdef1!' \
-  --timezone 'Europe/Rome' \
-  --micado-db-password 'Abcdef1!' \
-  --weblate-email-host-password 'Abcdef1!' \
-  --algorithm-password 'Abcdef1!' \
-  --micado-weblate-key 'abcdef0123456789' \
-  --portainer-hostname portainer.example.local \
-  --api-hostname api.example.local
-```
-
-### Deploy Command
-
-```sh
-micado_install deploy --docker-compose /path/to/install/docker-compose.yaml
-```
-
 # Usage
 
 ## Downloading and Installing the Compiled Program
@@ -92,17 +42,50 @@ To prepare the MICADO application for a specific release, use the following comm
 micado_install prepare download --release <RELEASE> --path <PATH>
 ```
 
-- `--release`: The release version to prepare (e.g., `v1.0.0`).
+- `--release`: The release version to prepare (e.g., `1.0.0`). Be careful not to use any 'v' in front of the release string
 - `--path`: The path where the MICADO application will be installed.
 
 
 ## Configure Environment
 
-To configure the environment for the MICADO application, use the following command:
+To configure the environment for the MICADO application, from within the installation folder, use the following command:
 
 ```bash
 micado_install configure environment
+
+or
+
+micado_install configure environment \
+  --postgres-password 'Abcdef1!' \
+  --keycloak-admin-password 'Abcdef1!' \
+  --identity-hostname id.example.local \
+  --migrants-hostname migrants.example.local \
+  --pa-hostname pa.example.local \
+  --ngo-hostname ngo.example.local \
+  --traefik-acme-email admin@example.com \
+  --traefik-hostname traefik.example.local \
+  --git-hostname git.example.local \
+  --gitea-db-password 'Abcdef1!' \
+  --gitea-admin-password 'Abcdef1!' \
+  --gitea-admin-email admin@example.com \
+  --weblate-email-host smtp.example.local \
+  --weblate-email-host-user weblate \
+  --weblate-server-email weblate@example.local \
+  --weblate-default-from-email weblate@example.local \
+  --weblate-admin-password 'Abcdef1!' \
+  --weblate-admin-email weblate-admin@example.local \
+  --translation-hostname translate.example.local \
+  --weblate-postgres-password 'Abcdef1!' \
+  --timezone 'Europe/Rome' \
+  --micado-db-password 'Abcdef1!' \
+  --weblate-email-host-password 'Abcdef1!' \
+  --algorithm-password 'Abcdef1!' \
+  --micado-weblate-key 'abcdef0123456789' \
+  --portainer-hostname portainer.example.local \
+  --api-hostname api.example.local
+
 ```
+Use the second command if you want not to type all the answers, but remember that in this case the command with the passwords will remain on the history of the shell
 
 This command will prompt you for various environment variables, validate them, and create the necessary folders. Here are the parameters you will be prompted for:
 
