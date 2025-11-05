@@ -2,9 +2,25 @@ import typer
 import subprocess
 from rich import print
 from app.core.checks import check_prepared
+from typing_extensions import Annotated
 import shlex
+import os
 
 app = typer.Typer()
+
+def get_env_vars(path: str) -> dict:
+    """Tiny .env reader (no expansion)."""
+    env = {}
+    with open(path, "r") as f:
+        for raw in f:
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            env[k.strip()] = v.strip()
+    return env
 
 @app.command()
 def compose_up():
